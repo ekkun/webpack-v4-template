@@ -50,6 +50,7 @@ $ npm run build
 │  ├─ sass/
 │  └─ index.js
 │
+├─ .babelrc
 ├─ .gitignore
 ├─ package.json
 ├─ README.md
