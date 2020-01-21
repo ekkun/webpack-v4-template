@@ -10,7 +10,7 @@ webpack を利用してみたい！
 $ npm install
 ```
 
-## gulp の監視
+## ファイル監視
 [http://localhost:4000/](http://localhost:4000/)
 
 
