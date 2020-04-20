@@ -22,7 +22,30 @@ const config = {
           {
             loader: 'html-loader',
             options: {
-              attrs: ['img:src', ':data-src']
+              attributes: {
+                list: [
+                  {
+                    tag: 'img',
+                    attribute: 'src',
+                    type: 'src',
+                  },
+                  {
+                    tag: 'img',
+                    attribute: 'srcset',
+                    type: 'srcset',
+                  },
+                  {
+                    tag: 'img',
+                    attribute: 'data-src',
+                    type: 'src',
+                  }
+                ]
+              },
+              minimize: true
+              /*minimize: {
+                removeComments: false,
+                collapseWhitespace: false,
+              }*/
             }
           },
           {
