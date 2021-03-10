@@ -7,7 +7,7 @@ const config = {
   output: {
     //filename: 'main.js',
     filename: './js/main.js',
-    path: outputPath
+    path: outputPath,
   },
   module: {
     rules: [
@@ -16,13 +16,13 @@ const config = {
         use: [
           {
             loader: 'file-loader',
-            options: { name: '[name].html' }
+            options: { name: '[name].html' },
           },
           'extract-loader',
           {
             loader: 'html-loader',
             options: {
-              attributes: {
+              /*attributes: {
                 list: [
                   {
                     tag: 'img',
@@ -40,41 +40,34 @@ const config = {
                     type: 'src',
                   }
                 ]
-              },
-              minimize: true
+              },*/
+              minimize: true,
               /*minimize: {
                 removeComments: false,
                 collapseWhitespace: false,
               }*/
-            }
+            },
           },
           {
             loader: 'pug-html-loader',
             options: {
-              pretty: true
-            }
-          }
-        ]
+              pretty: true,
+            },
+          },
+        ],
       },
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: "babel-loader"
+        loader: 'babel-loader',
       },
       {
         test: /\.css$/,
-        use: [
-          'style-loader',
-          'css-loader'
-        ]
+        use: ['style-loader', 'css-loader'],
       },
       {
         test: /\.scss$/,
-        use: [
-          'style-loader',
-          'css-loader',
-          'sass-loader'
-        ]
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       },
       {
         test: /\.(jpe?g|png|gif|svg|ico)$/i,
@@ -82,8 +75,8 @@ const config = {
         loader: 'file-loader',
         options: {
           limit: 1024,
-          name: './images/[name].[ext]'
-        }
+          name: './images/[name].[ext]',
+        },
         /*test: /\.(jpg|png|gif)$/,
         use: [
           {
@@ -97,15 +90,15 @@ const config = {
             }
           }
         ]*/
-      }
-    ]
+      },
+    ],
   },
   devServer: {
     inline: true,
     open: true,
     contentBase: outputPath,
-    port: 4000
-  }
+    port: 4000,
+  },
 };
 
 module.exports = config;
