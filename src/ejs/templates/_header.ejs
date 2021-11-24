@@ -1,0 +1,20 @@
+<header class="l-header" role="">
+  <div class="l-header__inner">
+    <% if (pageClass === "index") { %>
+    <h1 class="l-header__logo">
+      <a href="/">
+        <img src="<%= dir %>images/logo.svg" alt="">
+      </a>
+    </h1>
+    <% } else { %>
+    <p class="l-header__logo">
+      <a href="/">
+        <img src="<%= dir %>images/logo.svg" alt="">
+      </a>
+    </p>
+    <% } %>
+
+    <nav class="l-header__nav" role="">
+    </nav>
+  </div>
+</header>

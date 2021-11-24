@@ -1,0 +1,17 @@
+// Variable
+@use './foundation/_variable' as *;
+
+// Mixin
+@use './foundation/_mixin' as m;
+
+// Header
+.header {
+  display: block;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+
+  @media screen and (min-width: $pc-width) {
+    max-width: $pc-width;
+  }
+}
