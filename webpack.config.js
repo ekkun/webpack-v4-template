@@ -1,104 +1,190 @@
-// via https://note.com/youheyhey0505/n/n64771d0989a3
 const path = require('path');
-const outputPath = path.resolve(__dirname, 'dist');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const Fiber = require('fibers');
+const globule = require('globule');
+const WebpackCdnPlugin = require('webpack-cdn-plugin');
+const LazyLoadWebpackPlugin = require('lazyload-webpack-plugin');
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+const targetTypes = { html: 'html', js: 'js' };
 
-const config = {
-  entry: './src/js/index.js',
-  output: {
-    //filename: 'main.js',
-    filename: './js/main.js',
-    path: outputPath,
+const getEntriesList = (targetTypes) => {
+  const entriesList = {};
+  for (const [srcType, targetType] of Object.entries(targetTypes)) {
+    const filesMatched = globule.find(
+      [`**/*.${srcType}`, `!**/_*.${srcType}`],
+      { cwd: `${__dirname}/src/ejs` }
+    );
+
+    for (const srcName of filesMatched) {
+      const targetName = srcName.replace(
+        new RegExp(`.${srcType}$`, 'i'),
+        `.${targetType}`
+      );
+      entriesList[targetName] = `${__dirname}/src/ejs/${srcName}`;
+    }
+  }
+  return entriesList;
+};
+
+const app = {
+  mode: 'production', // production / development
+
+  entry: {
+    main: './src/js/main.js', //デフォルトのエントリーポイント
+    //slider: "./src/js/slider.js",
   },
+  output: {
+    path: path.resolve(__dirname, 'public'),
+    filename: 'assets/js/[name].js',
+  },
+
+  cache: false,
+
   module: {
     rules: [
+      // {
+      //   enforce: 'pre', //preが指定されていないloaderよりも早く処理がされる：babel-loaderで変換される前のコードを検証
+      //   test: /\.js$/,
+      //   exclude: /node_modules/,
+      //   loader: 'eslint-loader',
+      //   options: {
+      //     fix:true,  //一部のエラーを自動で修正される
+      //   },
+      // },
       {
-        test: /\.pug$/,
+        test: /\.js$/, //処理対象になるファイル
+        exclude: /node_modules/, //除外したいファイル
+        loader: 'babel-loader',
+        options: {
+          presets: [
+            [
+              '@babel/preset-env',
+              {
+                modules: false,
+                useBuiltIns: 'usage',
+                corejs: 3,
+                targets: {
+                  ie: '11',
+                },
+              },
+            ],
+          ],
+        },
+      },
+      {
+        test: /\.scss$/,
         use: [
+          //指定した順の逆から実行される。この順で書くこと
+          MiniCssExtractPlugin.loader,
+          //'css-loader', //モジュールに変換
           {
-            loader: 'file-loader',
-            options: { name: '[name].html' },
-          },
-          'extract-loader',
-          {
-            loader: 'html-loader',
+            loader: 'css-loader',
             options: {
-              /*attributes: {
-                list: [
-                  {
-                    tag: 'img',
-                    attribute: 'src',
-                    type: 'src',
-                  },
-                  {
-                    tag: 'img',
-                    attribute: 'srcset',
-                    type: 'srcset',
-                  },
-                  {
-                    tag: 'img',
-                    attribute: 'data-src',
-                    type: 'src',
-                  }
-                ]
-              },*/
-              minimize: true,
-              /*minimize: {
-                removeComments: false,
-                collapseWhitespace: false,
-              }*/
+              //url: false,
+              sourceMap: true,
+              importLoaders: 2,
             },
           },
           {
-            loader: 'pug-html-loader',
+            loader: 'postcss-loader',
             options: {
-              pretty: true,
+              sourceMap: true,
+              plugins: [
+                require('autoprefixer')({
+                  grid: true,
+                  browsers: ['last 2 versions', 'ie >= 11'],
+                }),
+              ],
+            },
+          },
+          {
+            loader: 'sass-loader', //コンパイル
+            options: {
+              implementation: require('sass'), //DartSass
+              sassOptions: {
+                fiber: Fiber,
+                outputStyle: 'compressed', //圧縮　expanded,compressed
+              },
+              sourceMap: true,
             },
           },
         ],
       },
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader',
-      },
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: /\.scss$/,
-        use: ['style-loader', 'css-loader', 'sass-loader'],
-      },
-      {
-        test: /\.(jpe?g|png|gif|svg|ico)$/i,
-        //loader: 'url-loader',
-        loader: 'file-loader',
-        options: {
-          limit: 1024,
-          name: './images/[name].[ext]',
-        },
-        /*test: /\.(jpg|png|gif)$/,
+        test: /\.(jpe?g|gif|png|svg)$/,
         use: [
           {
             loader: 'file-loader',
             options: {
-              name: '[name].[ext]',
-              outputPath : 'images/',
-              publicPath : path => {
-                return '../' + path;
-              }
-            }
-          }
-        ]*/
+              name: '[path][name].[ext]',
+              publicPath: '/assets/images',
+              outputPath: 'assets/images',
+              context: 'src/images',
+            },
+          },
+          'image-webpack-loader',
+        ],
+      },
+      {
+        test: /\.ejs$/,
+        use: [
+          {
+            loader: 'html-loader',
+            options: {
+              minimize: false,
+            },
+          },
+          {
+            loader: 'ejs-plain-loader',
+          },
+        ],
+        //loader: 'html-loader',
+        //options: {
+        //  minimize: false,
+        //},
       },
     ],
   },
   devServer: {
-    inline: true,
-    open: true,
-    contentBase: outputPath,
-    port: 4000,
+    contentBase: path.resolve(__dirname, 'public'),
+    // open: true, //起動時にブラウザを開く
+    port: 8080, // localhost:8080
+    overlay: true, //エラーをオーバーレイ表示
+    // publicPath: 'img'
+    hot: true,
+  },
+  externals: [
+    {
+      jQuery: 'jquery',
+    },
+  ],
+  plugins: [
+    new HardSourceWebpackPlugin(),
+    // new CleanWebpackPlugin({ verbose: true }),
+    new MiniCssExtractPlugin({
+      filename: './assets/css/style.css',
+    }),
+  ],
+  devtool: 'source-map',
+  //import文で拡張子が.tsのファイルを解決する
+  resolve: {
+    extensions: ['.ts', '.js', '.json'],
   },
 };
+for (const [targetName, srcName] of Object.entries(
+  getEntriesList({ ejs: 'html' })
+)) {
+  app.plugins.push(
+    new HtmlWebpackPlugin({
+      filename: targetName,
+      template: srcName,
+      minify: false, //minifyしない
+      inject: false, //バンドルしたjsファイルを読み込むscriptタグを自動出力するか
+    }),
+    new LazyLoadWebpackPlugin()
+  );
+}
 
-module.exports = config;
+module.exports = app; //実行
