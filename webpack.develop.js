@@ -29,10 +29,10 @@ const getEntriesList = (targetTypes) => {
 };
 
 const app = {
-  mode: 'production', // production / development
+  mode: 'development', // production / development
 
   entry: {
-    main: './src/js/main.js',
+    main: './src/js/main.js', // デフォルトのエントリーポイント
   },
   output: {
     path: path.resolve(__dirname, 'public'),
@@ -44,8 +44,8 @@ const app = {
   module: {
     rules: [
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
+        test: /\.js$/, // 処理対象になるファイル
+        exclude: /node_modules/, // 除外したいファイル
         loader: 'babel-loader',
         options: {
           presets: [
@@ -66,16 +66,21 @@ const app = {
       {
         test: /\.scss$/,
         use: [
+          // 指定した順の逆から実行される。この順で書くこと
           MiniCssExtractPlugin.loader,
+          // 'css-loader', //モジュールに変換
           {
             loader: 'css-loader',
             options: {
+              // url: false,
+              sourceMap: true,
               importLoaders: 2,
             },
           },
           {
             loader: 'postcss-loader',
             options: {
+              sourceMap: true,
               postcssOptions: {
                 plugins: [
                   require('autoprefixer')({
@@ -93,13 +98,14 @@ const app = {
             },
           },
           {
-            loader: 'sass-loader',
+            loader: 'sass-loader', //コンパイル
             options: {
-              implementation: require('sass'),
+              implementation: require('sass'), // DartSass
               sassOptions: {
                 fiber: Fiber,
-                outputStyle: 'compressed',
+                outputStyle: 'expanded', // 圧縮 expanded,compressed
               },
+              sourceMap: true,
             },
           },
         ],
@@ -132,14 +138,19 @@ const app = {
             loader: 'ejs-plain-loader',
           },
         ],
+        //loader: 'html-loader',
+        //options: {
+        //  minimize: false,
+        //},
       },
     ],
   },
   devServer: {
     contentBase: path.resolve(__dirname, 'public'),
-    // open: true,
-    port: 8080,
-    overlay: true,
+    // open: true, // 起動時にブラウザを開く
+    port: 8080, // localhost:8080
+    overlay: true, // エラーをオーバーレイ表示
+    // publicPath: 'img'
     hot: true,
   },
   externals: [
@@ -154,6 +165,8 @@ const app = {
       filename: './assets/css/style.css',
     }),
   ],
+  devtool: 'source-map',
+  // import文で拡張子が.tsのファイルを解決する
   resolve: {
     extensions: ['.ts', '.js', '.json'],
   },
@@ -165,11 +178,11 @@ for (const [targetName, srcName] of Object.entries(
     new HtmlWebpackPlugin({
       filename: targetName,
       template: srcName,
-      minify: false,
-      inject: false,
+      minify: false, // minifyしない
+      inject: false, // バンドルしたjsファイルを読み込むscriptタグを自動出力するか
     }),
     new LazyLoadWebpackPlugin()
   );
 }
 
-module.exports = app;
+module.exports = app; //実行
