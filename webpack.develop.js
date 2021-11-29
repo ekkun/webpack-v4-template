@@ -155,7 +155,7 @@ const app = {
   },
   externals: [
     {
-      jQuery: 'jquery',
+      //jQuery: 'jquery',
     },
   ],
   plugins: [
