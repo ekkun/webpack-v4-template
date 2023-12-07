@@ -1,7 +1,7 @@
 'use strict';
 
 // SCSS
-import '../scss/style.scss';
+import '../scss/main.scss';
 
 // JavaScript
 import './components/index.js';
