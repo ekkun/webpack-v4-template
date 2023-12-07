@@ -33,10 +33,11 @@ const app = {
 
   entry: {
     main: './src/js/main.js', // デフォルトのエントリーポイント
+    index: './src/js/index.js',
   },
   output: {
-    path: path.resolve(__dirname, 'public'),
     filename: 'assets/js/[name].js',
+    path: path.resolve(__dirname, 'public'),
   },
 
   cache: false,
@@ -162,7 +163,7 @@ const app = {
     new HardSourceWebpackPlugin(),
     // new CleanWebpackPlugin({ verbose: true }),
     new MiniCssExtractPlugin({
-      filename: './assets/css/style.css',
+      filename: './assets/css/[name].css',
     }),
   ],
   devtool: 'source-map',

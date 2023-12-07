@@ -1,5 +1,13 @@
 @charset 'utf-8';
 
+// Foundation
+@use './foundation/_reset';
+@use './foundation/_normalize';
+@use './foundation/_reboot';
+@use './foundation/_variable' as *;
+@use './foundation/_mixin' as m;
+@use './foundation/_base';
+
 // Index
 @use './page/index/_block';
 @use './page/index/_mainvisual';
